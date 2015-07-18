@@ -42,13 +42,22 @@ public class SafepointTest {
             Thread.sleep(10);
         }
 
+        ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+
         long initialCount = getSafepointCount();
 
-        ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
         long[] threadIds = threadBean.getAllThreadIds();
+
+        long afterIDsCount = getSafepointCount();
         threadBean.getThreadInfo(threadIds, 1000);
 
-        System.out.println(getSafepointCount() - initialCount);
+        System.out.println("SafePoint count getAllThreadIDs: " + (afterIDsCount - initialCount) +" getThreadInfo: " +  (getSafepointCount() - afterIDsCount));
+
+        initialCount = getSafepointCount();
+
+        ThreadInfo[] threads = threadBean.dumpAllThreads(true, true);
+
+        System.out.println("SafePoint count dumpAllThreads: " +  (getSafepointCount() - initialCount));
 
         executorService.shutdownNow();
     }
